@@ -6,6 +6,7 @@
 #include <chrono>
 
 enum class itemType {Weapon, Book, Armor, Potion};
+enum class modeType {NoMode, Inventory, Attack, Exit};
 
 struct item {
   std::string name;    //Name of the item
@@ -25,6 +26,9 @@ struct item {
 };
 
 item inventory[5];
+bool is_Done;
+std::string command;
+modeType mode;
 
 void sleep_ms(int milliseconds) {
   std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
@@ -69,8 +73,7 @@ void showInventory(const item* inventory_p) {
 
     const size_t INV_SIZE = sizeof(inventory) / sizeof(inventory[0]);
 
-    //clear screen
-    clearScreen();
+
 
     // Header
     std::cout << std::left
@@ -108,21 +111,47 @@ void setItem(item* inventory_p, size_t index, const item& value) {
 }
 
 int main() {
-
-;
+  //initialize
+  clearScreen();
+  
   initializeInventory(inventory);
-  showInventory(inventory);
+  is_Done = false;
+  command = "";
+  mode = modeType::NoMode;
+  
+  while (!is_Done) {
+    std::cout << "Command :";
+    std::cin  >> command;
 
-  setItem(inventory, 0, item{
-    "Excalibur", itemType::Weapon, 10, // item header
-    150, 100,                          // weapon
-    "", "", "",                        // book
-    0, 0                               // armor
-  });
+    if (command == "exit") { mode = modeType::Exit; is_Done = true; }
+    else if (command == "inventory") { mode = modeType::Inventory; }
+    else if (command == "attack") { mode = modeType::Attack; }
+    else { mode = modeType::NoMode; }
 
-  sleep_ms(2000);
-
-  showInventory(inventory);
+    switch (mode) {
+      case modeType::Inventory:
+        clearScreen();
+        showInventory(inventory);
+        break;
+      case modeType::Attack:
+        clearScreen();
+        std::cout << "Attack mode\n";
+        break;
+      case modeType::Exit:
+        clearScreen();
+        std::cout << "Exit\n";
+        break;
+      case modeType::NoMode:
+        std::cout << "No command. Please select command.\n";
+        break;
+      default:
+        clearScreen();
+        std::cout << "Unknown command. Please try again.\n";
+        break;
+    }
+    
+  }
+  
 
   return 0;
 }
